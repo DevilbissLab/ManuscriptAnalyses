@@ -1,0 +1,205 @@
+Current Data Table() << Data Filter(
+	Location( {858, 15} ),
+	Width( 251 ),
+	Mode( Show( 1 ), Include( 1 ) ),
+	Add Filter(
+		columns( :Cluster ),
+		Where(
+			:Cluster == {"aCSF-PBS Vehicle-8.tif", "aCSF-PBS Vehicle-9.tif",
+			"aCSF-PBS Vehicle-10.tif", "aCSF-PBS Vehicle-11.tif",
+			"aCSF-PBS Vehicle-12.tif", "aCSF-PBS Vehicle-13.tif",
+			"aCSF-PBS Vehicle-14.tif", "aCSF-PBS Vehicle-15.tif",
+			"aCSF-PBS Vehicle-16.tif", "aCSF-PBS Vehicle-17.tif",
+			"aCSF-PBS Vehicle-18.tif", "aCSF-PBS Vehicle-19.tif",
+			"aCSF-PBS Vehicle-20.tif", "Dihexa10-1.tif", "Dihexa10-2.tif",
+			"Dihexa10-4.tif", "Dihexa10-5.tif", "Dihexa10-6.tif", "Dihexa100-1.tif",
+			"Dihexa100-3.tif", "Dihexa100-4.tif", "Dihexa100-5.tif",
+			"Dihexa100-8.tif", "Dihexa1000-1.tif", "Dihexa1000-3.tif",
+			"Dihexa1000-4.tif", "Dihexa1000-5.tif", "Dihexa1000-6.tif",
+			"Dihexa1000-7.tif", "Dihexa1000-8.tif", "Dihexa1000-9.tif",
+			"Dihexa1000-10.tif", "Dihexa1000-11.tif", "Dihexa1000-12.tif",
+			"Dihexa1000-13.tif", "Dihexa1000-14.tif", "Dihexa1000-15.tif",
+			"Dihexa1000-16.tif", "Dihexa1000-17.tif", "Dihexa1000-18.tif",
+			"Dihexa1000-19.tif", "Dihexa1000-20.tif", "Dihexa1000-21.tif",
+			"Dihexa1000-22.tif", "Dihexa1000-23.tif", "HGF-1.tif", "HGF-2.tif",
+			"HGF-3.tif", "HGF-4.tif", "HGF-6.tif", "HGF-8.tif", "HGF+Dihexa-1.tif",
+			"HGF+Dihexa-2.tif", "HGF+Dihexa-3.tif", "HGF+Dihexa-4.tif",
+			"HGF+Dihexa-5.tif", "HGF+Dihexa-6.tif", "HGF+Dihexa-7.tif",
+			"HGF+Dihexa-10.tif", "HGF+Dihexa-11.tif", "HGF+Dihexa-13.tif",
+			"HGF+Dihexa-14.tif", "HGF+Dihexa-16.tif", "HGF+Dihexa-17.tif",
+			"HGF+Dihexa-18.tif", "HGF+Dihexa-19.tif"}
+		),
+		Display( :Cluster, N Items( 45 ), Find( Set Text( "" ) ) )
+	)
+);
+Row State( 24 ) = Combine States(Excluded State( 1 ),  Hidden State( 1 ));
+Row State( 25 ) = Combine States(Excluded State( 1 ),  Hidden State( 1 ));
+
+
+Graph Builder(
+	Size( 672, 814 ),
+	Variables(
+		X( :Manipulation ),
+		Y( :Mean ),
+		Y( :Mode ),
+		Y( :IntDen ),
+		Overlay( :Manipulation )
+	),
+	Elements(
+		Position( 1, 1 ),
+		Points( X, Y, Legend( 22 ), Jitter( "Packed" ), Jitter Limit( 0.6 ) ),
+		Box Plot( X, Y, Legend( 34 ) )
+	),
+	Elements(
+		Position( 1, 2 ),
+		Points( X, Y, Legend( 23 ), Jitter( "Packed" ), Jitter Limit( 0.6 ) ),
+		Box Plot( X, Y, Legend( 35 ) )
+	),
+	Elements(
+		Position( 1, 3 ),
+		Points(
+			X,
+			Y,
+			Legend( 24 ),
+			Error Interval( "Standard Error" ),
+			Jitter( "Packed" ),
+			Jitter Limit( 0.6 )
+		),
+		Box Plot( X, Y, Legend( 36 ) )
+	),
+	SendToReport(
+		Dispatch( {}, "Mean", ScaleBox,
+			{Format( "Best", 12 ), Min( 0 ), Max( 28.4533110372766 ), Inc( 10 ),
+			Minor Ticks( 4 )}
+		),
+		Dispatch( {}, "IntDen", ScaleBox,
+			{Min( -1547.28161647319 ), Max( 76545.1448100649 ), Inc( 20000 ),
+			Minor Ticks( 3 )}
+		),
+		Dispatch( {}, "Graph Builder", FrameBox( 2 ),
+			{DispatchSeg(
+				Box Plot Seg( "Box Plot (HGF+Dihexa, HGF+Dihexa)" ),
+				Line Color( {40, 182, 143} )
+			)}
+		)
+	)
+);
+Fit Group(
+	Fit Model(
+		Y( :Mean ),
+		Effects( :Manipulation ),
+		Random Effects( :Label ),
+		NoBounds( 1 ),
+		Personality( "Mixed Model" ),
+		Run(
+			Repeated Effects Covariance Parameter Estimates( 0 ),
+			Multiple Comparisons(
+				Effect( :Manipulation ),
+				Comparisons with Control(
+					1,
+					Control Level( "Manipulation:PBS" ),
+					Comparisons with Control Decision Chart(
+						Control Differences Chart(
+							1,
+							Point Options( "Show Needles" )
+						)
+					)
+				)
+			)
+		),
+		SendToReport(
+			Dispatch( {}, "Actual by Predicted Plot", OutlineBox, {Close( 1 )} ),
+			Dispatch( {}, "Actual by Conditional Predicted Plot", OutlineBox,
+				{Close( 1 )}
+			),
+			Dispatch( {}, "Fit Statistics", OutlineBox, {Close( 1 )} ),
+			Dispatch( {}, "Random Effects Covariance Parameter Estimates",
+				OutlineBox,
+				{Close( 1 )}
+			),
+			Dispatch( {}, "Fixed Effects Parameter Estimates", OutlineBox,
+				{Close( 1 )}
+			)
+		)
+	),
+	Fit Model(
+		Y( :Mode ),
+		Effects( :Manipulation ),
+		Random Effects( :Label ),
+		NoBounds( 1 ),
+		Personality( "Mixed Model" ),
+		Run(
+			Repeated Effects Covariance Parameter Estimates( 0 ),
+			Multiple Comparisons(
+				Effect( :Manipulation ),
+				Comparisons with Control(
+					1,
+					Control Level( "Manipulation:PBS" ),
+					Comparisons with Control Decision Chart(
+						Control Differences Chart(
+							1,
+							Point Options( "Show Needles" )
+						)
+					)
+				)
+			)
+		),
+		SendToReport(
+			Dispatch( {}, "Actual by Predicted Plot", OutlineBox, {Close( 1 )} ),
+			Dispatch( {}, "Actual by Conditional Predicted Plot", OutlineBox,
+				{Close( 1 )}
+			),
+			Dispatch( {}, "Fit Statistics", OutlineBox, {Close( 1 )} ),
+			Dispatch( {}, "Random Effects Covariance Parameter Estimates",
+				OutlineBox,
+				{Close( 1 )}
+			),
+			Dispatch( {}, "Fixed Effects Parameter Estimates", OutlineBox,
+				{Close( 1 )}
+			)
+		)
+	),
+	Fit Model(
+		Y( :IntDen ),
+		Effects( :Manipulation ),
+		Random Effects( :Label ),
+		NoBounds( 1 ),
+		Personality( "Mixed Model" ),
+		Run(
+			Repeated Effects Covariance Parameter Estimates( 0 ),
+			Multiple Comparisons(
+				Effect( :Manipulation ),
+				Comparisons with Control(
+					1,
+					Control Level( "Manipulation:PBS" ),
+					Comparisons with Control Decision Chart(
+						Control Differences Chart(
+							1,
+							Point Options( "Show Needles" )
+						)
+					)
+				)
+			)
+		),
+		SendToReport(
+			Dispatch( {}, "Actual by Predicted Plot", OutlineBox, {Close( 1 )} ),
+			Dispatch( {}, "Actual by Conditional Predicted Plot", OutlineBox,
+				{Close( 1 )}
+			),
+			Dispatch( {}, "Fit Statistics", OutlineBox, {Close( 1 )} ),
+			Dispatch( {}, "Random Effects Covariance Parameter Estimates",
+				OutlineBox,
+				{Close( 1 )}
+			),
+			Dispatch( {}, "Fixed Effects Parameter Estimates", OutlineBox,
+				{Close( 1 )}
+			)
+		)
+	)
+);
+Tabulate(
+	Add Table(
+		Column Table( Analysis Columns( :Mean ), Statistics( N, Mean, Std Err ) ),
+		Row Table( Grouping Columns( :Manipulation ) )
+	)
+);

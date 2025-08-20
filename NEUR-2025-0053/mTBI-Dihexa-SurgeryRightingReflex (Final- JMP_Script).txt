@@ -1,0 +1,149 @@
+//DMD - 8-26-2024
+Current Data Table() << Data Filter(
+	Location( {1581, 2} ),
+	Width( 291 ),
+	Mode( Show( 1 ), Include( 1 ) ),
+	Add Filter(
+		columns(
+			:Animal_ID, :ExcludedFromStudy, :ValidCannulaLocation, :Injury,
+			:Injury_Magnitude, :Route, :Timing
+		),
+		Where(
+			:Animal_ID == {"TM01", "TM02", "TM05", "TM06", "TM07", "TM09", "TM11",
+			"TM12", "TM13", "TM14", "TM15", "TM16", "TM17", "TM18", "TM19", "TM20",
+			"TM21", "TM22", "TM23", "TM24", "TM42", "TM43", "TM44", "TM45", "TM46",
+			"TM47", "TM48", "TM51", "TM52", "TM53", "TM54", "TM55", "TM56", "TM57",
+			"TM58", "TM59", "TM61", "TM62", "TM63", "TM64", "TM65", "TM66", "TM67",
+			"TM68", "TM69", "TM70", "TM71", "TM72", "TM73", "TM74", "TM76", "TM78",
+			"TM79"}
+		),
+		Where( :Injury == {"3x rTBI", "3x Sham"} ),
+		Where( :Injury_Magnitude == {"0", "Mild"} ),
+		Where( :Route == "ICV" ),
+		Where( :Timing == "PostInjury_Day1-6" ),
+		Display( :Animal_ID, N Items( 15 ), Find( Set Text( "" ) ) ),
+		Display( :ValidCannulaLocation, N Items( 5 ) ),
+		Display( :Injury_Magnitude, N Items( 4 ) ),
+		Display( :Timing, N Items( 3 ), "List Display" )
+	)
+);
+
+Graph Builder(
+	Size( 570, 462 ),
+	Variables(
+		X( :Animal_Sex ),
+		X( :Surgery, Position( 1 ) ),
+		Y( :RightingReflexes ),
+		Group X( :Injury ),
+		Color( :Animal_Sex )
+	),
+	Elements(
+		Bar( X( 1 ), X( 2 ), Y, Legend( 10 ), Error Interval( "Standard Error" ) ),
+		Points( X( 1 ), X( 2 ), Y, Legend( 11 ) )
+	),
+	SendToReport(
+		Dispatch(
+			{},
+			"Animal_Sex",
+			ScaleBox,
+			{Label Row( 1, Label Orientation( "Angled" ) )}
+		),
+		Dispatch(
+			{},
+			"RightingReflexes",
+			ScaleBox,
+			{Format( "Best", 12 ), Min( 99.9153047492694 ), Max( 350.000933600863 ),
+			Inc( 50 ), Minor Ticks( 0 )}
+		),
+		Dispatch(
+			{},
+			"400",
+			ScaleBox,
+			{Legend Model(
+				10,
+				Properties( 0, {Fill Color( 75 )}, Item ID( "F", 1 ) ),
+				Properties( 1, {Fill Color( 5 )}, Item ID( "M", 1 ) ),
+				Properties( 2, {Line Color( 16 )}, Item ID( "Standard Error", 1 ) )
+			), Legend Model(
+				11,
+				Properties( 0, {Line Color( 0 )}, Item ID( "F", 1 ) ),
+				Properties( 1, {Line Color( 0 )}, Item ID( "M", 1 ) )
+			)}
+		),
+		Dispatch( {}, "Y title", TextEditBox, {Set Text( "RightingReflexes (g)" )} ),
+		Dispatch(
+			{},
+			"Graph Builder",
+			FrameBox,
+			{DispatchSeg( BarSeg( 1 ), {Set Width Proportion( 0.9 )} )}
+		),
+		Dispatch(
+			{},
+			"Graph Builder",
+			FrameBox( 2 ),
+			{DispatchSeg( BarSeg( 1 ), {Set Width Proportion( 0.9 )} )}
+		)
+	)
+);
+
+Fit Model(
+	Y( :RightingReflexes ),
+	Effects(
+		:Animal_Sex, :Injury, :Surgery, :Animal_Sex * :Injury,
+		:Animal_Sex * :Surgery, :Injury * :Surgery, :Animal_Sex * :Injury * :Surgery
+	),
+	Personality( "Standard Least Squares" ),
+	Emphasis( "Minimal Report" ),
+	Run(
+		:RightingReflexes << {Summary of Fit( 1 ), Analysis of Variance( 1 ),
+		Parameter Estimates( 1 ), Lack of Fit( 0 ), Scaled Estimates( 0 ),
+		Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+		Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+		Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 ),
+		Box Cox Y Transformation( 0 )}
+	),
+	SendToReport(
+		Dispatch( {"Response RightingReflexes"}, "Effect Summary", OutlineBox, {Close( 1 )} ),
+		Dispatch( {"Response RightingReflexes"}, "Summary of Fit", OutlineBox, {Close( 1 )} ),
+		Dispatch(
+			{"Response RightingReflexes"},
+			"Parameter Estimates",
+			OutlineBox,
+			{Close( 1 )}
+		)
+	)
+);
+
+Fit Model(
+	Y( :RightingReflexes ),
+	Effects(
+		:Animal_Sex, :Injury, :Surgery, :Animal_Sex * :Injury,
+		:Animal_Sex * :Surgery, :Injury * :Surgery, :Animal_Sex * :Injury * :Surgery
+	),
+	Random Effects( :Animal_ID ),
+	NoBounds( 1 ),
+	Personality( "Mixed Model" ),
+	Run( Repeated Effects Covariance Parameter Estimates( 0 ) ),
+	SendToReport(
+		Dispatch( {}, "Actual by Predicted Plot", OutlineBox, {Close( 1 )} ),
+		Dispatch(
+			{},
+			"Actual by Conditional Predicted Plot",
+			OutlineBox,
+			{Close( 1 )}
+		),
+		Dispatch( {}, "Fit Statistics", OutlineBox, {Close( 1 )} ),
+		Dispatch(
+			{},
+			"Fixed Effects Parameter Estimates",
+			OutlineBox,
+			{Close( 1 )}
+		)
+	)
+);
+Tabulate(
+	Add Table(
+		Column Table( Analysis Columns( :RightingReflexes ), Statistics( Mean, Std Err ) ),
+		Row Table( Grouping Columns( :Animal_Sex, :Surgery ) )
+	)
+);
