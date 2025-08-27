@@ -1,52 +1,34 @@
-// Run this block by block as there are multiple filters 
-
 //T-Maze percent correct
 // 1st address the effects of mTBI on performance
-// this includes TM24 as an exclusion
+// This filter uses all animal's baselines
+// for comaprison of Baseline vs Sham/rmTBI
 Current Data Table() << Data Filter(
-	Location( {1553, 62} ),
+	Location( {1580, 0} ),
 	Width( 291 ),
 	Mode( Show( 1 ), Include( 1 ) ),
 	Add Filter(
-		columns(
-			:Animal_ID, :ExcludedFromAnalysis, :ValidCannulaLocation,
-			:Injury_Magnitude, :Condition, :Condition2, :Trial
-		),
+		columns( :ExcludedFromStudy, :Condition, :Condition2, :Trial ),
+		Where( :ExcludedFromStudy == "N" ),
 		Where(
-			:Animal_ID == {"TM01", "TM02", "TM05", "TM06", "TM07", "TM09", "TM11",
-			"TM12", "TM13", "TM14", "TM15", "TM16", "TM17", "TM18", "TM19", "TM20",
-			"TM21", "TM22", "TM23", "TM42", "TM43", "TM44", "TM45", "TM46", "TM48",
-			"TM49", "TM51", "TM52", "TM53", "TM54", "TM55", "TM56", "TM57", "TM58",
-			"TM59", "TM61", "TM62", "TM63", "TM64", "TM66", "TM67", "TM68", "TM69",
-			"TM70", "TM71", "TM73", "TM74", "TM75", "TM76", "TM78", "TM79", "TM80",
-			"TM82", "TM85", "TM86", "TM87", "TM88", "TM89"}
+			:Condition == {"3x Sham + aCSF", "3x rTBI + aCSF",
+			"3x rTBI + Dihexa 1 pmol", "3x rTBI + Dihexa 1 nmol",
+			"3x rTBI + Hinge+Dihexa 1 nmol"}
 		),
-		Where( :ExcludedFromAnalysis == "N" ),
-		Where( :ValidCannulaLocation == {"?", "NA", "Y"} ),
-		Where( Is Missing( :Injury_Magnitude ) | :Injury_Magnitude == "Mild" ),
-		Where(
-			:Condition == {"3x Sham + aCSF", "3x rTBI + aCSF"}
-		),
-		Where(
-			:Condition2 == {"Baseline", "3x Sham + aCSF", "3x rTBI + aCSF"}
-		),
+		Where( :Condition2 == {"Baseline", "3x Sham + aCSF", "3x rTBI + aCSF"} ),
 		Where(
 			:Trial == {"Baseline 1", "Baseline 2", "Baseline 3", "Day 3", "Day 4",
 			"Day 5"}
 		),
-		Display( :Animal_ID, N Items( 15 ), Find( Set Text( "" ) ) ),
-		Display( :ExcludedFromAnalysis, N Items( 13 ) ),
-		Display( :ValidCannulaLocation, N Items( 4 ) ),
-		Display( :Injury_Magnitude, N Items( 4 ) ),
 		Display( :Condition, N Items( 7 ) ),
 		Display( :Condition2, N Items( 9 ) ),
 		Display( :Trial, N Items( 9 ) )
 	)
 );
-Row State( 332 ) = Combine States(Excluded State( 1 ),  Hidden State( 1 ));
+// main effects for sex and condition2
+// extended versionFit 
 Fit Model(
 	Y( :PercentCorrect ),
-	Effects( :Condition2 ),
+	Effects( :Condition2, :Animal_Sex ),
 	Random Effects( :Animal_ID ),
 	NoBounds( 1 ),
 	Personality( "Mixed Model" ),
@@ -65,30 +47,20 @@ Fit Model(
 	),
 	SendToReport(
 		Dispatch( {}, "Actual by Predicted Plot", OutlineBox, {Close( 1 )} ),
-		Dispatch(
-			{},
-			"Actual by Conditional Predicted Plot",
-			OutlineBox,
+		Dispatch( {}, "Actual by Conditional Predicted Plot", OutlineBox,
 			{Close( 1 )}
 		),
-		Dispatch( {}, "Fit Statistics", OutlineBox, {Close( 1 )} ),
-		Dispatch(
-			{},
-			"Random Effects Covariance Parameter Estimates",
-			OutlineBox,
+		Dispatch( {}, "Fixed Effects Parameter Estimates", OutlineBox,
 			{Close( 1 )}
 		),
-		Dispatch(
-			{},
-			"Fixed Effects Parameter Estimates",
-			OutlineBox,
+		Dispatch( {"Multiple Comparisons for Condition2"},
+			"Least Squares Means Estimates", OutlineBox,
 			{Close( 1 )}
 		),
 		Dispatch(
 			{"Multiple Comparisons for Condition2",
 			"Tukey HSD All Pairwise Comparisons"},
-			"All Pairwise Comparisons Scatterplot",
-			OutlineBox,
+			"All Pairwise Comparisons Scatterplot", OutlineBox,
 			{Close( 1 )}
 		)
 	)
@@ -102,455 +74,86 @@ Tabulate(
 		Row Table( Grouping Columns( :Condition2, :Trial ) )
 	)
 );
-
-// 
-// now address the effects of drug on mTBI on performance
-
-Current Data Table() << Data Filter(
-	Location( {1553, 62} ),
-	Width( 291 ),
-	Mode( Show( 1 ), Include( 1 ) ),
-	Add Filter(
-		columns(
-			:Animal_ID, :ExcludedFromAnalysis, :ValidCannulaLocation,
-			:Injury_Magnitude, :Condition, :Condition2, :Trial
-		),
-		Where(
-			:Animal_ID == {"TM01", "TM02", "TM05", "TM06", "TM07", "TM09", "TM11",
-			"TM12", "TM13", "TM14", "TM15", "TM16", "TM17", "TM18", "TM19", "TM20",
-			"TM21", "TM22", "TM23", "TM42", "TM43", "TM44", "TM45", "TM46", "TM48",
-			"TM49", "TM51", "TM52", "TM53", "TM54", "TM55", "TM56", "TM57", "TM58",
-			"TM59", "TM61", "TM62", "TM63", "TM64", "TM66", "TM67", "TM68", "TM69",
-			"TM70", "TM71", "TM73", "TM74", "TM75", "TM76", "TM78", "TM79", "TM80",
-			"TM82", "TM85", "TM86", "TM87", "TM88", "TM89"}
-		),
-		Where( :ExcludedFromAnalysis == "N" ),
-		Where( :ValidCannulaLocation == {"?", "NA", "Y"} ),
-		Where( Is Missing( :Injury_Magnitude ) | :Injury_Magnitude == "Mild" ),
-		Where(
-			:Condition == {"3x rTBI + aCSF",
-			"3x rTBI + Dihexa 1 pmol", "3x rTBI + Dihexa 1 nmol",
-			"3x rTBI + Hinge+Dihexa 1 nmol"}
-		),
-		Where(
-			:Condition2 == {"Baseline", "3x rTBI + aCSF",
-			"3x rTBI + Dihexa 1 pmol", "3x rTBI + Dihexa 1 nmol",
-			"3x rTBI + Hinge+Dihexa 1 nmol"}
-		),
-		Where(
-			:Trial == {"Baseline 1", "Baseline 2", "Baseline 3", "Day 3", "Day 4",
-			"Day 5"}
-		),
-		Display( :Animal_ID, N Items( 15 ), Find( Set Text( "" ) ) ),
-		Display( :ExcludedFromAnalysis, N Items( 13 ) ),
-		Display( :ValidCannulaLocation, N Items( 4 ) ),
-		Display( :Injury_Magnitude, N Items( 4 ) ),
-		Display( :Condition, N Items( 7 ) ),
-		Display( :Condition2, N Items( 9 ) ),
-		Display( :Trial, N Items( 9 ) )
-	)
-);
-Row State( 332 ) = Combine States(Excluded State( 1 ),  Hidden State( 1 ));
-
-// Days 3-5
-Graph Builder(
-	Size( 828, 660 ),
-	Fit to Window( "Off" ),
-	Variables( X( :Condition2 ), Y( :PercentCorrect ), Color( :Condition2 ) ),
-	Elements(
-		Bar( X, Y, Legend( 78 ), Error Interval( "Standard Error" ) ),
-		Points( X, Y, Legend( 79 ), Jitter( "Density Random" ) )
-	),
-	SendToReport(
-		Dispatch(
-			{},
-			"Condition2",
-			ScaleBox,
-			{Min( -0.567308921478114 ), Max( 5.58931770054806 ), Inc( 1 ),
-			Minor Ticks( 0 ), Label Row( Label Orientation( "Angled" ) )}
-		),
-		Dispatch(
-			{},
-			"PercentCorrect",
-			ScaleBox,
-			{Min( 0.45 ), Max( 1 ), Inc( 0.1 ), Minor Ticks( 9 ),
-			Add Ref Line( 0.5, "Dotted", "Plain Gray", "", 1 )}
-		),
-		Dispatch(
-			{},
-			"400",
-			ScaleBox,
-			{Legend Model(
-				78,
-				Properties( 0, {Fill Color( -5682409 )}, Item ID( "Baseline", 1 ) ),
-				Properties(
-					1,
-					{Fill Color( -15113984 )},
-					Item ID( "3x Sham + aCSF", 1 )
-				),
-				Properties(
-					2,
-					{Fill Color( -13983232 )},
-					Item ID( "3x rTBI + aCSF", 1 )
-				),
-				Properties(
-					3,
-					{Fill Color( -29362 )},
-					Item ID( "3x rTBI + Dihexa 1 pmol", 1 )
-				),
-				Properties(
-					4,
-					{Fill Color( -40563 )},
-					Item ID( "3x rTBI + Dihexa 1 nmol", 1 )
-				),
-				Properties(
-					5,
-					{Fill Color( -13400487 )},
-					Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 1 )
-				),
-				Properties( 6, {Line Color( 0 )}, Item ID( "Standard Error", 1 ) )
-			), Legend Model(
-				79,
-				Properties( 0, {Line Color( 16 )}, Item ID( "Baseline", 1 ) ),
-				Properties( 1, {Line Color( 16 )}, Item ID( "3x Sham + aCSF", 1 ) ),
-				Properties( 2, {Line Color( 16 )}, Item ID( "3x rTBI + aCSF", 1 ) ),
-				Properties(
-					3,
-					{Line Color( 16 )},
-					Item ID( "3x rTBI + Dihexa 1 pmol", 1 )
-				),
-				Properties(
-					4,
-					{Line Color( 16 )},
-					Item ID( "3x rTBI + Dihexa 1 nmol", 1 )
-				),
-				Properties(
-					5,
-					{Line Color( 16 )},
-					Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 1 )
-				)
-			)}
-		),
-		Dispatch( {}, "Y title", TextEditBox, {Set Text( "Percent Correct" )} ),
-		Dispatch(
-			{},
-			"Graph Builder",
-			FrameBox,
-			{DispatchSeg( BarSeg( 1 ), {Set Width Proportion( 0.9 )} ),
-			DispatchSeg( BarSeg( 2 ), {Line Color( "Medium Dark Gray" )} )}
-		)
-	)
-);
-
-Fit Model(
-	Y( :PercentCorrect ),
-	Effects( :Condition2 ),
-	Random Effects( :Animal_ID ),
-	NoBounds( 1 ),
-	Personality( "Mixed Model" ),
-	Run(
-		Repeated Effects Covariance Parameter Estimates( 0 ),
-		Multiple Comparisons(
-			Effect( :Condition2 ),
-			Comparisons with Control(
-				1,
-				Control Level( "Condition2:Baseline" ),
-				"Calculate Adjusted P-Values"n( 1 ),
-				Comparisons with Control Decision Chart( 0 )
-			),
-			Tukey HSD( 1 )
-		)
-	),
-	SendToReport(
-		Dispatch( {}, "Actual by Predicted Plot", OutlineBox, {Close( 1 )} ),
-		Dispatch(
-			{},
-			"Actual by Conditional Predicted Plot",
-			OutlineBox,
-			{Close( 1 )}
-		),
-		Dispatch( {}, "Fit Statistics", OutlineBox, {Close( 1 )} ),
-		Dispatch(
-			{},
-			"Random Effects Covariance Parameter Estimates",
-			OutlineBox,
-			{Close( 1 )}
-		),
-		Dispatch(
-			{},
-			"Fixed Effects Parameter Estimates",
-			OutlineBox,
-			{Close( 1 )}
-		),
-		Dispatch(
-			{"Multiple Comparisons for Condition2",
-			"Tukey HSD All Pairwise Comparisons"},
-			"All Pairwise Comparisons Scatterplot",
-			OutlineBox,
-			{Close( 1 )}
-		)
-	)
-);
-
 Tabulate(
 	Add Table(
 		Column Table(
-			Analysis Columns( :PercentCorrect),
+			Analysis Columns( :PercentCorrect ),
+			Statistics( Mean, Std Err )
+		),
+		Row Table( Grouping Columns( :Condition2 ) )
+	)
+);
+Tabulate(
+	Add Table(
+		Column Table(
+			Analysis Columns( :PercentCorrect ),
 			Statistics( N, Mean, Std Err )
 		),
-		Row Table( Grouping Columns( :Condition2, :Trial ) )
-	)
-);
-
-// other figures and stats models
-
-
-Graph Builder(
-	Size( 478, 508 ),
-	Fit to Window( "Off" ),
-	Variables( X( :Trials 3 ), Y( :PercentCorrect ), Overlay( :Condition ) ),
-	Relative Sizes( "Y", [251] ),
-	Elements(
-		Line( X, Y, Legend( 28 ), Error Interval( "Standard Error" ) ),
-		Points( X, Y, Legend( 29 ), Summary Statistic( "Mean" ) )
+		Row Table( Grouping Columns( :Animal_Sex, :Condition2 ) )
 	),
-	SendToReport(
-		Dispatch(
-			{},
-			"PercentCorrect",
-			ScaleBox,
-			{Min( 0.488715291109955 ), Max( 1.00303653068358 ), Inc( 0.1 ),
-			Minor Ticks( 4 )}
-		),
-		Dispatch(
-			{},
-			"400",
-			ScaleBox,
-			{Legend Model(
-				28,
-				Base( 5, 0, 0, Item ID( "3x Sham + aCSF", 2 ) ),
-				Base( 6, 0, 1, Item ID( "3x rTBI + aCSF", 2 ) ),
-				Base( 7, 0, 2, Item ID( "3x rTBI + Dihexa 1 pmol", 2 ) ),
-				Base( 8, 0, 3, Item ID( "3x rTBI + Dihexa 1 nmol", 2 ) ),
-				Base( 9, 0, 4, Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 2 ) ),
-				Properties(
-					0,
-					{Line Color( -15113984 ), Line Style( "Dotted" ),
-					Fill Color( -15113984 )},
-					Item ID( "3x Sham + aCSF", 1 )
-				),
-				Properties(
-					1,
-					{Line Color( -13983232 ), Line Style( "Dotted" ),
-					Fill Color( -13983232 )},
-					Item ID( "3x rTBI + aCSF", 1 )
-				),
-				Properties(
-					2,
-					{Line Color( -29362 ), Fill Color( -29362 )},
-					Item ID( "3x rTBI + Dihexa 1 pmol", 1 )
-				),
-				Properties(
-					3,
-					{Line Color( -40563 ), Fill Color( -40563 )},
-					Item ID( "3x rTBI + Dihexa 1 nmol", 1 )
-				),
-				Properties(
-					4,
-					{Line Color( -13400487 ), Fill Color( -13400487 )},
-					Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 1 )
-				),
-				Properties( 5, {Line Color( 0 )}, Item ID( "3x Sham + aCSF", 2 ) ),
-				Properties( 6, {Line Color( 0 )}, Item ID( "3x rTBI + aCSF", 2 ) ),
-				Properties(
-					7,
-					{Line Color( 0 )},
-					Item ID( "3x rTBI + Dihexa 1 pmol", 2 )
-				),
-				Properties(
-					8,
-					{Line Color( 0 )},
-					Item ID( "3x rTBI + Dihexa 1 nmol", 2 )
-				),
-				Properties(
-					9,
-					{Line Color( 0 )},
-					Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 2 )
-				)
-			)}
-		),
-		Dispatch( {}, "Graph Builder", FrameBox, {Reference Line Order( 12 )} ),
-		Dispatch(
-			{},
-			"400",
-			LegendBox,
-			{Legend Position(
-				{28, [0, 1, 2, 3, 4, -1, -1, -1, -1, -1], 29, [-3, -3, -3, -3, -3]}
-			)}
+	Local Data Filter(
+		Mode( Show( 0 ) ),
+		Add Filter(
+			columns( :Trial ),
+			Where( :Trial == {"Baseline 3", "Day 3"} ),
+			Display( :Trial, N Items( 9 ) )
 		)
-	)
-);
-// the bars for Baseline
-Graph Builder(
-	Size( 478, 508 ),
-	Fit to Window( "Off" ),
-	Variables( X( :Trials 3 ), Y( :PercentCorrect ), Overlay( :Condition ) ),
-	Relative Sizes( "Y", [251] ),
-	Elements( Bar( X, Y, Legend( 27 ), Error Interval( "Standard Error" ) ) ),
-	SendToReport(
-		Dispatch(
-			{},
-			"PercentCorrect",
-			ScaleBox,
-			{Min( 0.488715291109955 ), Max( 1.00303653068358 ), Inc( 0.1 ),
-			Minor Ticks( 4 )}
-		),
-		Dispatch(
-			{},
-			"400",
-			ScaleBox,
-			{Legend Model(
-				27,
-				Base( 5, 0, 0, Item ID( "3x Sham + aCSF", 2 ) ),
-				Base( 6, 0, 1, Item ID( "3x rTBI + aCSF", 2 ) ),
-				Base( 7, 0, 2, Item ID( "3x rTBI + Dihexa 1 pmol", 2 ) ),
-				Base( 8, 0, 3, Item ID( "3x rTBI + Dihexa 1 nmol", 2 ) ),
-				Base( 9, 0, 4, Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 2 ) ),
-				Properties(
-					0,
-					{Line Color( -15113984 ), Fill Color( -15113984 ),
-					Fill Pattern( "hollow circle" )},
-					Item ID( "3x Sham + aCSF", 1 )
-				),
-				Properties(
-					1,
-					{Line Color( -13983232 ), Fill Color( -13983232 ),
-					Fill Pattern( "hollow circle" )},
-					Item ID( "3x rTBI + aCSF", 1 )
-				),
-				Properties(
-					2,
-					{Line Color( -29362 ), Fill Color( -29362 )},
-					Item ID( "3x rTBI + Dihexa 1 pmol", 1 )
-				),
-				Properties(
-					3,
-					{Line Color( -40563 ), Fill Color( -40563 )},
-					Item ID( "3x rTBI + Dihexa 1 nmol", 1 )
-				),
-				Properties(
-					4,
-					{Line Color( -13400487 ), Fill Color( -13400487 )},
-					Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 1 )
-				),
-				Properties( 5, {Line Color( 0 )}, Item ID( "3x Sham + aCSF", 2 ) ),
-				Properties( 6, {Line Color( 0 )}, Item ID( "3x rTBI + aCSF", 2 ) ),
-				Properties(
-					7,
-					{Line Color( 0 )},
-					Item ID( "3x rTBI + Dihexa 1 pmol", 2 )
-				),
-				Properties(
-					8,
-					{Line Color( 0 )},
-					Item ID( "3x rTBI + Dihexa 1 nmol", 2 )
-				),
-				Properties(
-					9,
-					{Line Color( 0 )},
-					Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 2 )
-				)
-			)}
-		),
-		Dispatch( {}, "Graph Builder", FrameBox, {Reference Line Order( 2 )} ),
-		Dispatch(
-			{},
-			"400",
-			LegendBox,
-			{Legend Position( {27, [0, 1, 2, 3, 4, -1, -1, -1, -1, -1]} )}
-		)
-	)
+	),
+	SendToReport( Dispatch( {}, "", TextBox, {Set Base Font( "Heading" )} ) )
 );
 
+// ///////////////////////////////////////////////////////////////////////////////////////////////
+// Address the effects of drug on mTBI on performance
 
-//T-Maze percent correct
-//this is a re-do with all conditions
-// this includes TM24 as an exclusion
+// This filter uses all animal's baselines
+// Selects ONLY Baseline and animals that recieved rmTBI
+// for comaprison of Baseline vs drug effects on rmTBI
 Current Data Table() << Data Filter(
-	Location( {1553, 62} ),
+	Location( {1580, 0} ),
 	Width( 291 ),
 	Mode( Show( 1 ), Include( 1 ) ),
 	Add Filter(
-		columns(
-			:Animal_ID, :ExcludedFromAnalysis, :ValidCannulaLocation,
-			:Injury_Magnitude, :Condition, :Condition2, :Trial
-		),
-		Where(
-			:Animal_ID == {"TM01", "TM02", "TM05", "TM06", "TM07", "TM09", "TM11",
-			"TM12", "TM13", "TM14", "TM15", "TM16", "TM17", "TM18", "TM19", "TM20",
-			"TM21", "TM22", "TM23", "TM42", "TM43", "TM44", "TM45", "TM46", "TM48",
-			"TM49", "TM51", "TM52", "TM53", "TM54", "TM55", "TM56", "TM57", "TM58",
-			"TM59", "TM61", "TM62", "TM63", "TM64", "TM66", "TM67", "TM68", "TM69",
-			"TM70", "TM71", "TM73", "TM74", "TM75", "TM76", "TM78", "TM79", "TM80",
-			"TM82", "TM85", "TM86", "TM87", "TM88", "TM89"}
-		),
-		Where( :ExcludedFromAnalysis == "N" ),
-		Where( :ValidCannulaLocation == {"?", "NA", "Y"} ),
-		Where( Is Missing( :Injury_Magnitude ) | :Injury_Magnitude == "Mild" ),
+		columns( :ExcludedFromStudy, :Condition, :Condition2, :Trial ),
+		Where( :ExcludedFromStudy == "N" ),
 		Where(
 			:Condition == {"3x Sham + aCSF", "3x rTBI + aCSF",
 			"3x rTBI + Dihexa 1 pmol", "3x rTBI + Dihexa 1 nmol",
 			"3x rTBI + Hinge+Dihexa 1 nmol"}
 		),
 		Where(
-			:Condition2 == {"Baseline", "3x Sham + aCSF", "3x rTBI + aCSF",
-			"3x rTBI + Dihexa 1 pmol", "3x rTBI + Dihexa 1 nmol",
-			"3x rTBI + Hinge+Dihexa 1 nmol"}
+			:Condition2 == {"Baseline", "3x rTBI + aCSF", "3x rTBI + Dihexa 1 pmol",
+			"3x rTBI + Dihexa 1 nmol", "3x rTBI + Hinge+Dihexa 1 nmol"}
 		),
 		Where(
 			:Trial == {"Baseline 1", "Baseline 2", "Baseline 3", "Day 3", "Day 4",
 			"Day 5"}
 		),
-		Display( :Animal_ID, N Items( 15 ), Find( Set Text( "" ) ) ),
-		Display( :ExcludedFromAnalysis, N Items( 13 ) ),
-		Display( :ValidCannulaLocation, N Items( 4 ) ),
-		Display( :Injury_Magnitude, N Items( 4 ) ),
 		Display( :Condition, N Items( 7 ) ),
 		Display( :Condition2, N Items( 9 ) ),
 		Display( :Trial, N Items( 9 ) )
 	)
 );
-Row State( 332 ) = Combine States(Excluded State( 1 ),  Hidden State( 1 ));
 
-
-// Days 3-5
+// Days 3-5 block (This represents a stable performance after surgery and reinstatement of food regulation)
 Graph Builder(
-	Size( 828, 660 ),
-	Fit to Window( "Off" ),
+	Size( 796, 516 ),
+	Show Control Panel( 0 ),
+	Fit to Window( "Maintain Aspect Ratio" ),
 	Variables( X( :Condition2 ), Y( :PercentCorrect ), Color( :Condition2 ) ),
 	Elements(
 		Bar( X, Y, Legend( 78 ), Error Interval( "Standard Error" ) ),
 		Points( X, Y, Legend( 79 ), Jitter( "Density Random" ) )
 	),
 	SendToReport(
-		Dispatch(
-			{},
-			"Condition2",
-			ScaleBox,
+		Dispatch( {}, "Condition2", ScaleBox,
 			{Min( -0.567308921478114 ), Max( 5.58931770054806 ), Inc( 1 ),
 			Minor Ticks( 0 ), Label Row( Label Orientation( "Angled" ) )}
 		),
-		Dispatch(
-			{},
-			"PercentCorrect",
-			ScaleBox,
+		Dispatch( {}, "PercentCorrect", ScaleBox,
 			{Min( 0.45 ), Max( 1 ), Inc( 0.1 ), Minor Ticks( 9 ),
 			Add Ref Line( 0.5, "Dotted", "Plain Gray", "", 1 )}
 		),
-		Dispatch(
-			{},
-			"400",
-			ScaleBox,
+		Dispatch( {}, "400", ScaleBox,
 			{Legend Model(
 				78,
 				Properties( 0, {Fill Color( -5682409 )}, Item ID( "Baseline", 1 ) ),
@@ -564,49 +167,46 @@ Graph Builder(
 					{Fill Color( -13983232 )},
 					Item ID( "3x rTBI + aCSF", 1 )
 				),
+				Properties( 3, {Line Color( 0 )}, Item ID( "Standard Error", 1 ) ),
 				Properties(
-					3,
+					-1,
 					{Fill Color( -29362 )},
 					Item ID( "3x rTBI + Dihexa 1 pmol", 1 )
 				),
 				Properties(
-					4,
+					-1,
 					{Fill Color( -40563 )},
 					Item ID( "3x rTBI + Dihexa 1 nmol", 1 )
 				),
 				Properties(
-					5,
+					-1,
 					{Fill Color( -13400487 )},
 					Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 1 )
-				),
-				Properties( 6, {Line Color( 0 )}, Item ID( "Standard Error", 1 ) )
+				)
 			), Legend Model(
 				79,
 				Properties( 0, {Line Color( 16 )}, Item ID( "Baseline", 1 ) ),
 				Properties( 1, {Line Color( 16 )}, Item ID( "3x Sham + aCSF", 1 ) ),
 				Properties( 2, {Line Color( 16 )}, Item ID( "3x rTBI + aCSF", 1 ) ),
 				Properties(
-					3,
+					-1,
 					{Line Color( 16 )},
 					Item ID( "3x rTBI + Dihexa 1 pmol", 1 )
 				),
 				Properties(
-					4,
+					-1,
 					{Line Color( 16 )},
 					Item ID( "3x rTBI + Dihexa 1 nmol", 1 )
 				),
 				Properties(
-					5,
+					-1,
 					{Line Color( 16 )},
 					Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 1 )
 				)
 			)}
 		),
 		Dispatch( {}, "Y title", TextEditBox, {Set Text( "Percent Correct" )} ),
-		Dispatch(
-			{},
-			"Graph Builder",
-			FrameBox,
+		Dispatch( {}, "Graph Builder", FrameBox,
 			{DispatchSeg( BarSeg( 1 ), {Set Width Proportion( 0.9 )} ),
 			DispatchSeg( BarSeg( 2 ), {Line Color( "Medium Dark Gray" )} )}
 		)
@@ -673,13 +273,145 @@ Tabulate(
 	)
 );
 
-// End of block
-// -----------------------------------------------------------------------------
+// //////////////////////////////////////////////////////////////////////////////////////////
+//T-Maze run times
+// 1st address the effects of mTBI on performance
+// This filter uses all animal's baselines
+// for comaprison of Baseline vs Sham/rmTBI
+Current Data Table() << Data Filter(
+	Location( {1580, 0} ),
+	Width( 291 ),
+	Mode( Show( 1 ), Include( 1 ) ),
+	Add Filter(
+		columns( :ExcludedFromStudy, :Condition, :Condition2, :Trial ),
+		Where( :ExcludedFromStudy == "N" ),
+		Where(
+			:Condition == {"3x Sham + aCSF", "3x rTBI + aCSF",
+			"3x rTBI + Dihexa 1 pmol", "3x rTBI + Dihexa 1 nmol",
+			"3x rTBI + Hinge+Dihexa 1 nmol"}
+		),
+		Where( :Condition2 == {"Baseline", "3x Sham + aCSF", "3x rTBI + aCSF"} ),
+		Where(
+			:Trial == {"Baseline 1", "Baseline 2", "Baseline 3", "Day 3", "Day 4",
+			"Day 5"}
+		),
+		Display( :Condition, N Items( 7 ) ),
+		Display( :Condition2, N Items( 9 ) ),
+		Display( :Trial, N Items( 9 ) )
+	)
+);
+// sex and condition
+Fit Model(
+	Y( :"TrialTime(min)"n ),
+	Effects( :Condition2, :Animal_Sex ),
+	Random Effects( :Animal_ID ),
+	NoBounds( 1 ),
+	Personality( "Mixed Model" ),
+	Run( Repeated Effects Covariance Parameter Estimates( 0 ) ),
+	SendToReport(
+		Dispatch( {}, "Actual by Predicted Plot", OutlineBox, {Close( 1 )} ),
+		Dispatch( {}, "Actual by Conditional Predicted Plot", OutlineBox,
+			{Close( 1 )}
+		)
+	)
+);
 
-// Trial TImes
+// both sexes
+Fit Model(
+	Y( :"TrialTime(min)"n ),
+	Effects( :Condition2 ),
+	Random Effects( :Animal_ID ),
+	NoBounds( 1 ),
+	Personality( "Mixed Model" ),
+	Run(
+		Repeated Effects Covariance Parameter Estimates( 0 ),
+		Multiple Comparisons(
+			Effect( :Condition2 ),
+			Comparisons with Control(
+				1,
+				Control Level( "Condition2:Baseline" ),
+				"Calculate Adjusted P-Values"n( 1 ),
+				Comparisons with Control Decision Chart( 0 )
+			),
+			Tukey HSD( 1 )
+		)
+	),
+	SendToReport(
+		Dispatch( {}, "Actual by Predicted Plot", OutlineBox, {Close( 1 )} ),
+		Dispatch(
+			{},
+			"Actual by Conditional Predicted Plot",
+			OutlineBox,
+			{Close( 1 )}
+		),
+		Dispatch( {}, "Fit Statistics", OutlineBox, {Close( 1 )} ),
+		Dispatch(
+			{},
+			"Random Effects Covariance Parameter Estimates",
+			OutlineBox,
+			{Close( 1 )}
+		),
+		Dispatch(
+			{},
+			"Fixed Effects Parameter Estimates",
+			OutlineBox,
+			{Close( 1 )}
+		),
+		Dispatch(
+			{"Multiple Comparisons for Condition2",
+			"Tukey HSD All Pairwise Comparisons"},
+			"All Pairwise Comparisons Scatterplot",
+			OutlineBox,
+			{Close( 1 )}
+		)
+	)
+);
+Tabulate(
+	Add Table(
+		Column Table(
+			Analysis Columns( :"TrialTime(min)"n),
+			Statistics( N, Mean, Std Err )
+		),
+		Row Table( Grouping Columns( :Condition2, :Trial ) )
+	)
+);
+
+// //////////////////////////////////////////////////////////////////////////////////////////
+// Address the effects of drug on session time
+
+// This filter uses all animal's baselines
+// Selects ONLY Baseline and animals that recieved rmTBI
+// for comaprison of Baseline vs drug effects on rmTBI
+Current Data Table() << Data Filter(
+	Location( {1580, 0} ),
+	Width( 291 ),
+	Mode( Show( 1 ), Include( 1 ) ),
+	Add Filter(
+		columns( :ExcludedFromStudy, :Condition, :Condition2, :Trial ),
+		Where( :ExcludedFromStudy == "N" ),
+		Where(
+			:Condition == {"3x Sham + aCSF", "3x rTBI + aCSF",
+			"3x rTBI + Dihexa 1 pmol", "3x rTBI + Dihexa 1 nmol",
+			"3x rTBI + Hinge+Dihexa 1 nmol"}
+		),
+		Where(
+			:Condition2 == {"Baseline", "3x rTBI + aCSF", "3x rTBI + Dihexa 1 pmol",
+			"3x rTBI + Dihexa 1 nmol", "3x rTBI + Hinge+Dihexa 1 nmol"}
+		),
+		Where(
+			:Trial == {"Baseline 1", "Baseline 2", "Baseline 3", "Day 3", "Day 4",
+			"Day 5"}
+		),
+		Display( :Condition, N Items( 7 ) ),
+		Display( :Condition2, N Items( 9 ) ),
+		Display( :Trial, N Items( 9 ) )
+	)
+);
+// Days 3-5 block (This represents a stable performance after surgery and reinstatement of food regulation)
 Graph Builder(
-	Size( 797, 660 ),
-	Fit to Window( "Off" ),
+	Size( 796, 516 ),
+	Show Control Panel( 0 ),
+	Fit to Window( "Maintain Aspect Ratio" ),
 	Variables( X( :Condition2 ), Y( :"TrialTime(min)"n ), Color( :Condition2 ) ),
 	Elements(
 		Bar( X, Y, Legend( 78 ), Error Interval( "Standard Error" ) ),
@@ -770,557 +502,61 @@ Graph Builder(
 	)
 );
 
-Graph Builder(
-	Size( 478, 508 ),
-	Fit to Window( "Off" ),
-	Variables( X( :Trials 3 ), Y( :"TrialTime(min)"n ), Overlay( :Condition ) ),
-	Relative Sizes( "Y", [251] ),
-	Elements(
-		Line( X, Y, Legend( 28 ), Error Interval( "Standard Error" ) ),
-		Points( X, Y, Legend( 29 ), Summary Statistic( "Mean" ) )
-	),
-	SendToReport(
-		Dispatch(
-			{},
-			"TrialTime(min)",
-			ScaleBox,
-			{Min( 164.571428571429 ), Max( 900 ), Interval( "Minute" ), Inc( 1 ),
-			Minor Ticks( 3 ), Label Row( Automatic Tick Marks( 0 ) )}
-		),
-		Dispatch(
-			{},
-			"400",
-			ScaleBox,
-			{Legend Model(
-				28,
-				Base( 5, 0, 0, Item ID( "3x Sham + aCSF", 2 ) ),
-				Base( 6, 0, 1, Item ID( "3x rTBI + aCSF", 2 ) ),
-				Base( 7, 0, 2, Item ID( "3x rTBI + Dihexa 1 pmol", 2 ) ),
-				Base( 8, 0, 3, Item ID( "3x rTBI + Dihexa 1 nmol", 2 ) ),
-				Base( 9, 0, 4, Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 2 ) ),
-				Properties(
-					0,
-					{Line Color( -15113984 ), Line Style( "Dotted" )},
-					Item ID( "3x Sham + aCSF", 1 )
-				),
-				Properties(
-					1,
-					{Line Color( -13983232 ), Line Style( "Dotted" )},
-					Item ID( "3x rTBI + aCSF", 1 )
-				),
-				Properties(
-					2,
-					{Line Color( -29362 )},
-					Item ID( "3x rTBI + Dihexa 1 pmol", 1 )
-				),
-				Properties(
-					3,
-					{Line Color( -40563 )},
-					Item ID( "3x rTBI + Dihexa 1 nmol", 1 )
-				),
-				Properties(
-					4,
-					{Line Color( -13400487 )},
-					Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 1 )
-				),
-				Properties( 5, {Line Color( 0 )}, Item ID( "3x Sham + aCSF", 2 ) ),
-				Properties( 6, {Line Color( 0 )}, Item ID( "3x rTBI + aCSF", 2 ) ),
-				Properties(
-					7,
-					{Line Color( 0 )},
-					Item ID( "3x rTBI + Dihexa 1 pmol", 2 )
-				),
-				Properties(
-					8,
-					{Line Color( 0 )},
-					Item ID( "3x rTBI + Dihexa 1 nmol", 2 )
-				),
-				Properties(
-					9,
-					{Line Color( 0 )},
-					Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 2 )
-				)
-			)}
-		),
-		Dispatch(
-			{},
-			"Y title",
-			TextEditBox,
-			{Set Text( "Total Trial Time (min)" )}
-		),
-		Dispatch( {}, "Graph Builder", FrameBox, {Reference Line Order( 12 )} ),
-		Dispatch(
-			{},
-			"400",
-			LegendBox,
-			{Legend Position(
-				{28, [0, 1, 2, 3, 4, -1, -1, -1, -1, -1], 29, [-3, -3, -3, -3, -3]}
-			)}
-		)
-	)
-);
-
 Fit Model(
 	Y( :"TrialTime(min)"n ),
 	Effects( :Condition2 ),
-	Personality( "Standard Least Squares" ),
-	Emphasis( "Minimal Report" ),
+	Random Effects( :Animal_ID ),
+	NoBounds( 1 ),
+	Personality( "Mixed Model" ),
 	Run(
-		:"TrialTime(min)"n << {Summary of Fit( 1 ), Analysis of Variance( 1 ),
-		Parameter Estimates( 1 ), Lack of Fit( 0 ), Scaled Estimates( 0 ),
-		Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
-		Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
-		Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 ),
-		Box Cox Y Transformation( 0 ), {:Condition2 << {LSMeans Table( 0 ),
-		LSMeans Tukey HSD(
-			0.05,
-			Crosstab Report( 0 ),
-			Connecting Letters Report( 0 ),
-			Ordered Differences Report( 1 )
-		), LSMeans Dunnett(
-			0.05,
-			Control Level( "Baseline" ),
-			Control Differences Chart( 1, Point Options( "Show Needles" ) )
-		)}}}
-	),
-	Automatic Recalc( 1 ),
-	SendToReport(
-		Dispatch(
-			{"Response TrialTime(min)"},
-			"Summary of Fit",
-			OutlineBox,
-			{Close( 1 )}
-		),
-		Dispatch(
-			{"Response TrialTime(min)"},
-			"Analysis of Variance",
-			OutlineBox,
-			{Close( 1 )}
-		),
-		Dispatch(
-			{"Response TrialTime(min)"},
-			"Effect Tests",
-			OutlineBox,
-			{Close( 1 )}
-		),
-		Dispatch(
-			{"Response TrialTime(min)"},
-			"Effect Details",
-			OutlineBox,
-			{Close( 0 )}
-		),
-		Dispatch(
-			{"Response TrialTime(min)", "Effect Details", "Condition2",
-			"LSMeans Differences Dunnett"},
-			"Control Differences",
-			OutlineBox,
-			{Close( 1 )}
+		Repeated Effects Covariance Parameter Estimates( 0 ),
+		Multiple Comparisons(
+			Effect( :Condition2 ),
+			Comparisons with Control(
+				1,
+				Control Level( "Condition2:Baseline" ),
+				"Calculate Adjusted P-Values"n( 1 ),
+				Comparisons with Control Decision Chart( 0 )
+			),
+			Tukey HSD( 1 )
 		)
-	)
-);
-
-
-// End of block
-// -----------------------------------------------------------------------------
-
-// RotaRod
-Current Data Table() << Data Filter(
-	Location( {1565, 14} ),
-	Width( 291 ),
-	Mode( Show( 1 ), Include( 1 ) ),
-	Add Filter(
-		columns(
-			:Animal_ID, :ExcludedFromAnalysis, :ValidCannulaLocation,
-			:Injury_Magnitude, :Condition, :Condition2, :Trial
-		),
-		Where(
-			:Animal_ID == {"TM01", "TM02", "TM05", "TM06", "TM07", "TM09", "TM11",
-			"TM12", "TM13", "TM14", "TM15", "TM16", "TM17", "TM18", "TM19", "TM20",
-			"TM21", "TM22", "TM23", "TM42", "TM43", "TM44", "TM45", "TM46", "TM47",
-			"TM48", "TM49", "TM52", "TM53", "TM54", "TM55", "TM56", "TM57", "TM58",
-			"TM59", "TM61", "TM62", "TM63", "TM64", "TM66", "TM67", "TM68", "TM69",
-			"TM70", "TM71", "TM73", "TM74", "TM75", "TM76", "TM78", "TM79", "TM80",
-			"TM82", "TM85", "TM86", "TM87", "TM88", "TM89"}
-		),
-		Where(
-			:ExcludedFromAnalysis == {"?", "10t", "CageChange", "Data", "DNF", "N",
-			"Stressed", "USR", "Y"}
-		),
-		Where( :ValidCannulaLocation == {"?", "NA", "Y"} ),
-		Where( Is Missing( :Injury_Magnitude ) | :Injury_Magnitude == "Mild" ),
-		Where(
-			:Condition == {"3x Sham + aCSF", "3x rTBI + aCSF",
-			"3x rTBI + Dihexa 1 pmol", "3x rTBI + Dihexa 1 nmol",
-			"3x rTBI + Hinge+Dihexa 1 nmol"}
-		),
-		Where(
-			:Condition2 == {"Baseline", "3x Sham + aCSF", "3x rTBI + aCSF",
-			"3x rTBI + Dihexa 1 pmol", "3x rTBI + Dihexa 1 nmol",
-			"3x rTBI + Hinge+Dihexa 1 nmol"}
-		),
-		Where(
-			:Trial == {"Baseline 1", "Baseline 2", "Baseline 3", "Day 1", "Day 3",
-			"Day 5"}
-		),
-		Display( :Animal_ID, N Items( 15 ), Find( Set Text( "" ) ) ),
-		Display( :ExcludedFromAnalysis, N Items( 13 ) ),
-		Display( :ValidCannulaLocation, N Items( 4 ) ),
-		Display( :Injury_Magnitude, N Items( 4 ) ),
-		Display( :Condition, N Items( 7 ) ),
-		Display( :Condition2, N Items( 9 ) ),
-		Display( :Trial, N Items( 9 ) )
-	)
-);
-Graph Builder(
-	Size( 809, 549 ),
-	Fit to Window( "Off" ),
-	Variables( X( :Condition2 ), Y( :RR_Median ), Color( :Condition2 ) ),
-	Relative Sizes( "Y", [251] ),
-	Elements(
-		Bar( X, Y, Legend( 22 ), Error Interval( "Standard Error" ) ),
-		Points( X, Y, Legend( 23 ), Jitter( "Density Random" ) )
 	),
 	SendToReport(
+		Dispatch( {}, "Actual by Predicted Plot", OutlineBox, {Close( 1 )} ),
 		Dispatch(
 			{},
-			"RR_Median",
-			ScaleBox,
-			{Format( "Best", 12 ), Min( 0 ), Max( 700 ), Inc( 100 ),
-			Minor Ticks( 3 ), Add Ref Line( 600, "Dotted", "Plain Gray", "", 1 )}
-		),
-		Dispatch(
-			{},
-			"400",
-			ScaleBox,
-			{Legend Model(
-				22,
-				Properties( 0, {Fill Color( -5682409 )}, Item ID( "Baseline", 1 ) ),
-				Properties(
-					1,
-					{Fill Color( -15113984 )},
-					Item ID( "3x Sham + aCSF", 1 )
-				),
-				Properties(
-					2,
-					{Fill Color( -13983232 )},
-					Item ID( "3x rTBI + aCSF", 1 )
-				),
-				Properties(
-					3,
-					{Fill Color( -29362 )},
-					Item ID( "3x rTBI + Dihexa 1 pmol", 1 )
-				),
-				Properties(
-					4,
-					{Fill Color( -40563 )},
-					Item ID( "3x rTBI + Dihexa 1 nmol", 1 )
-				),
-				Properties(
-					5,
-					{Fill Color( -13400487 )},
-					Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 1 )
-				),
-				Properties( 6, {Line Color( 0 )}, Item ID( "Standard Error", 1 ) )
-			), Legend Model(
-				23,
-				Properties( 0, {Line Color( 16 )}, Item ID( "Baseline", 1 ) ),
-				Properties( 1, {Line Color( 16 )}, Item ID( "3x Sham + aCSF", 1 ) ),
-				Properties( 2, {Line Color( 16 )}, Item ID( "3x rTBI + aCSF", 1 ) ),
-				Properties(
-					3,
-					{Line Color( 16 )},
-					Item ID( "3x rTBI + Dihexa 1 pmol", 1 )
-				),
-				Properties(
-					4,
-					{Line Color( 16 )},
-					Item ID( "3x rTBI + Dihexa 1 nmol", 1 )
-				),
-				Properties(
-					5,
-					{Line Color( 16 )},
-					Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 1 )
-				)
-			)}
-		),
-		Dispatch(
-			{},
-			"400",
-			LegendBox,
-			{Legend Position(
-				{22, [0, 1, 2, 3, 4, 5, 6], 23, [7, 8, 9, 10, 11, 12]}
-			)}
-		)
-	)
-);
-Graph Builder(
-	Size( 459, 520 ),
-	Fit to Window( "Off" ),
-	Variables( X( :Trial ), Y( :RR_Median ), Overlay( :Condition ) ),
-	Elements(
-		Points( X, Y, Legend( 6 ), Summary Statistic( "Mean" ) ),
-		Line( X, Y, Legend( 7 ), Error Interval( "Standard Error" ) )
-	),
-	SendToReport(
-		Dispatch(
-			{},
-			"RR_Median",
-			ScaleBox,
-			{Min( 0 ), Max( 700 ), Inc( 100 ), Minor Ticks( 3 ),
-			Add Ref Line( 600, "Dotted", "Medium Dark Gray", "", 1 )}
-		),
-		Dispatch(
-			{},
-			"400",
-			ScaleBox,
-			{Legend Model(
-				6,
-				Base( 0, 0, 0, Item ID( "3x Sham + aCSF", 1 ) ),
-				Base( 1, 0, 0, Item ID( "3x rTBI + aCSF", 1 ) ),
-				Base( 2, 0, 0, Item ID( "3x rTBI + Dihexa 1 pmol", 1 ) ),
-				Base( 3, 0, 0, Item ID( "3x rTBI + Dihexa 1 nmol", 1 ) ),
-				Base( 4, 0, 0, Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 1 ) ),
-				Properties(
-					0,
-					{Line Color( -15113984 )},
-					Item ID( "3x Sham + aCSF", 1 )
-				),
-				Properties(
-					1,
-					{Line Color( -13983232 )},
-					Item ID( "3x rTBI + aCSF", 1 )
-				),
-				Properties(
-					2,
-					{Line Color( -29362 )},
-					Item ID( "3x rTBI + Dihexa 1 pmol", 1 )
-				),
-				Properties(
-					3,
-					{Line Color( -40563 )},
-					Item ID( "3x rTBI + Dihexa 1 nmol", 1 )
-				),
-				Properties(
-					4,
-					{Line Color( -13400487 )},
-					Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 1 )
-				)
-			), Legend Model(
-				7,
-				Base( 5, 0, 0, Item ID( "3x Sham + aCSF", 2 ) ),
-				Base( 6, 0, 1, Item ID( "3x rTBI + aCSF", 2 ) ),
-				Base( 7, 0, 2, Item ID( "3x rTBI + Dihexa 1 pmol", 2 ) ),
-				Base( 8, 0, 3, Item ID( "3x rTBI + Dihexa 1 nmol", 2 ) ),
-				Base( 9, 0, 4, Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 2 ) ),
-				Properties(
-					0,
-					{Line Color( -15113984 ), Line Style( "Dotted" )},
-					Item ID( "3x Sham + aCSF", 1 )
-				),
-				Properties(
-					1,
-					{Line Color( -13983232 ), Line Style( "Dotted" )},
-					Item ID( "3x rTBI + aCSF", 1 )
-				),
-				Properties(
-					2,
-					{Line Color( -29362 )},
-					Item ID( "3x rTBI + Dihexa 1 pmol", 1 )
-				),
-				Properties(
-					3,
-					{Line Color( -40563 )},
-					Item ID( "3x rTBI + Dihexa 1 nmol", 1 )
-				),
-				Properties(
-					4,
-					{Line Color( -13400487 )},
-					Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 1 )
-				),
-				Properties( 5, {Line Color( 0 )}, Item ID( "3x Sham + aCSF", 2 ) ),
-				Properties( 6, {Line Color( 0 )}, Item ID( "3x rTBI + aCSF", 2 ) ),
-				Properties(
-					7,
-					{Line Color( 0 )},
-					Item ID( "3x rTBI + Dihexa 1 pmol", 2 )
-				),
-				Properties(
-					8,
-					{Line Color( 0 )},
-					Item ID( "3x rTBI + Dihexa 1 nmol", 2 )
-				),
-				Properties(
-					9,
-					{Line Color( 0 )},
-					Item ID( "3x rTBI + Hinge+Dihexa 1 nmol", 2 )
-				)
-			)}
-		),
-		Dispatch(
-			{},
-			"400",
-			LegendBox,
-			{Legend Position(
-				{6, [0, 1, 2, 3, 4], 7, [5, 6, 7, 8, 9, -1, -1, -1, -1, -1]}
-			)}
-		)
-	)
-);
-
-
-
-
-Fit Model(
-	Y( :RR_Median ),
-	Effects( :Condition, :Trial, :Condition * :Trial ),
-	Personality( "Standard Least Squares" ),
-	Emphasis( "Minimal Report" ),
-	Run(
-		:RR_Median << {Summary of Fit( 1 ), Analysis of Variance( 1 ),
-		Parameter Estimates( 1 ), Lack of Fit( 0 ), Scaled Estimates( 0 ),
-		Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
-		Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
-		Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 ),
-		Box Cox Y Transformation( 0 ), {:Condition * :Trial <<
-		{LSMeans Tukey HSD(
-			0.05,
-			Crosstab Report( 0 ),
-			Connecting Letters Report( 0 ),
-			Ordered Differences Report( 1 )
-		)}}}
-	),
-	SendToReport(
-		Dispatch(
-			{"Response RR_Median"},
-			"Effect Details",
+			"Actual by Conditional Predicted Plot",
 			OutlineBox,
-			{Close( 0 )}
+			{Close( 1 )}
 		),
+		Dispatch( {}, "Fit Statistics", OutlineBox, {Close( 1 )} ),
 		Dispatch(
-			{"Response RR_Median", "Effect Details"},
-			"Condition",
+			{},
+			"Random Effects Covariance Parameter Estimates",
 			OutlineBox,
 			{Close( 1 )}
 		),
 		Dispatch(
-			{"Response RR_Median", "Effect Details"},
-			"Trial",
+			{},
+			"Fixed Effects Parameter Estimates",
 			OutlineBox,
 			{Close( 1 )}
 		),
 		Dispatch(
-			{"Response RR_Median", "Effect Details", "Condition*Trial",
-			"LSMeans Differences Tukey HSD"},
-			"",
-			Table Box( 2 ),
-			{Sort By Column( 7, 1 )}
+			{"Multiple Comparisons for Condition2",
+			"Tukey HSD All Pairwise Comparisons"},
+			"All Pairwise Comparisons Scatterplot",
+			OutlineBox,
+			{Close( 1 )}
 		)
 	)
 );
-
-Fit Group(
-	Fit Model(
-		Y( :RR_Median ),
-		Effects( :Condition2 ),
-		Personality( "Standard Least Squares" ),
-		Emphasis( "Minimal Report" ),
-		Run(
-			:RR_Median << {Summary of Fit( 1 ), Analysis of Variance( 1 ),
-			Parameter Estimates( 1 ), Lack of Fit( 0 ), Scaled Estimates( 0 ),
-			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
-			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
-			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 ),
-			Box Cox Y Transformation( 0 ), {:Condition2 <<
-			{LSMeans Tukey HSD(
-				0.05,
-				Crosstab Report( 0 ),
-				Connecting Letters Report( 0 ),
-				Ordered Differences Report( 1 )
-			), LSMeans Dunnett(
-				0.05,
-				Control Level( "Baseline" ),
-				Control Differences Chart( 1, Point Options( "Show Needles" ) )
-			)}}}
+Tabulate(
+	Add Table(
+		Column Table(
+			Analysis Columns( :"TrialTime(min)"n),
+			Statistics( N, Mean, Std Err )
 		),
-		SendToReport(
-			Dispatch(
-				{"Response RR_Median"},
-				"Effect Details",
-				OutlineBox,
-				{Close( 0 )}
-			),
-			Dispatch(
-				{"Response RR_Median", "Effect Details", "Condition2"},
-				"Least Squares Means Table",
-				OutlineBox,
-				{Close( 1 )}
-			),
-			Dispatch(
-				{"Response RR_Median", "Effect Details", "Condition2",
-				"LSMeans Differences Tukey HSD"},
-				"",
-				Table Box( 2 ),
-				{Sort By Column( 7, 1 )}
-			),
-			Dispatch(
-				{"Response RR_Median", "Effect Details", "Condition2",
-				"LSMeans Differences Dunnett"},
-				"Control Differences",
-				OutlineBox,
-				{Close( 1 )}
-			)
-		)
-	),
-	Fit Model(
-		Y( :RR_Mean ),
-		Effects( :Condition2 ),
-		Personality( "Standard Least Squares" ),
-		Emphasis( "Minimal Report" ),
-		Run(
-			:RR_Mean << {Summary of Fit( 1 ), Analysis of Variance( 1 ),
-			Parameter Estimates( 1 ), Lack of Fit( 0 ), Scaled Estimates( 0 ),
-			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
-			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
-			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 ),
-			Box Cox Y Transformation( 0 ), {:Condition2 <<
-			{LSMeans Tukey HSD(
-				0.05,
-				Crosstab Report( 0 ),
-				Connecting Letters Report( 0 ),
-				Ordered Differences Report( 1 )
-			), LSMeans Dunnett(
-				0.05,
-				Control Level( "Baseline" ),
-				Control Differences Chart( 1, Point Options( "Show Needles" ) )
-			)}}}
-		),
-		SendToReport(
-			Dispatch(
-				{"Response RR_Mean"},
-				"Effect Details",
-				OutlineBox,
-				{Close( 0 )}
-			),
-			Dispatch(
-				{"Response RR_Mean", "Effect Details", "Condition2"},
-				"Least Squares Means Table",
-				OutlineBox,
-				{Close( 1 )}
-			),
-			Dispatch(
-				{"Response RR_Mean", "Effect Details", "Condition2",
-				"LSMeans Differences Tukey HSD"},
-				"",
-				Table Box( 2 ),
-				{Sort By Column( 7, 1 )}
-			),
-			Dispatch(
-				{"Response RR_Mean", "Effect Details", "Condition2",
-				"LSMeans Differences Dunnett"},
-				"Control Differences",
-				OutlineBox,
-				{Close( 1 )}
-			)
-		)
+		Row Table( Grouping Columns( :Condition2, :Trial ) )
 	)
 );
